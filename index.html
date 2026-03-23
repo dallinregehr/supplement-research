@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Supplement Guide</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232736;
+    --border: #2e3347;
+    --text: #e4e6ef;
+    --text-dim: #8b8fa3;
+    --accent: #6c8cff;
+    --accent-dim: #4a5f99;
+    --green: #4ade80;
+    --green-dim: #166534;
+    --amber: #fbbf24;
+    --amber-dim: #92400e;
+    --red: #f87171;
+    --morning: #fbbf24;
+    --midday: #fb923c;
+    --evening: #a78bfa;
+    --training: #4ade80;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+
+  header .subtitle {
+    color: var(--text-dim);
+    font-size: 0.95rem;
+  }
+
+  .profile-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .tag {
+    font-size: 0.78rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    background: var(--surface2);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  .tag.active { background: var(--green-dim); color: var(--green); border-color: var(--green); }
+
+  /* ── Tab navigation ── */
+  .tabs {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  .tab-btn {
+    padding: 0.75rem 1.25rem;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── Timeline ── */
+  .timeline {
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.55rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--morning), var(--midday), var(--training), var(--evening));
+    border-radius: 1px;
+  }
+
+  .time-block {
+    position: relative;
+    margin-bottom: 2rem;
+  }
+
+  .time-block::before {
+    content: '';
+    position: absolute;
+    left: -1.55rem;
+    top: 0.6rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+  }
+
+  .time-block.morning::before { background: var(--morning); }
+  .time-block.midday::before { background: var(--midday); }
+  .time-block.training::before { background: var(--training); }
+  .time-block.evening::before { background: var(--evening); }
+
+  .time-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.75rem;
+  }
+
+  .time-block.morning .time-label { color: var(--morning); }
+  .time-block.midday .time-label { color: var(--midday); }
+  .time-block.training .time-label { color: var(--training); }
+  .time-block.evening .time-label { color: var(--evening); }
+
+  .time-note {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    margin-bottom: 0.75rem;
+    font-style: italic;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: var(--accent-dim); }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .card-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  .card-title-group { min-width: 0; }
+
+  .card-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-dose {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+
+  .status-pill {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-right: 0.5rem;
+  }
+
+  .status-pill.taking { background: var(--green-dim); color: var(--green); }
+  .status-pill.add { background: rgba(251, 191, 36, 0.15); color: var(--amber); }
+  .status-pill.optional { background: var(--surface2); color: var(--text-dim); }
+
+  .expand-icon {
+    color: var(--text-dim);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+    font-size: 0.85rem;
+  }
+
+  .card.open .expand-icon { transform: rotate(180deg); }
+
+  .card-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+  }
+
+  .card.open .card-body { max-height: 2000px; }
+
+  .card-content {
+    padding: 0 1.25rem 1.25rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+  }
+
+  .detail-section {
+    margin-bottom: 1rem;
+  }
+
+  .detail-section:last-child { margin-bottom: 0; }
+
+  .detail-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-bottom: 0.35rem;
+  }
+
+  .detail-text {
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    line-height: 1.65;
+  }
+
+  .detail-text strong { color: var(--text); font-weight: 500; }
+
+  /* ── Product recommendation ── */
+  .product-rec {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .product-name {
+    font-weight: 600;
+    font-size: 0.88rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .product-details {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+
+  .product-price {
+    display: inline-block;
+    margin-top: 0.3rem;
+    font-size: 0.8rem;
+    color: var(--green);
+    font-weight: 600;
+  }
+
+  .product-alt {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    margin-top: 0.35rem;
+    padding-top: 0.35rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── Sources ── */
+  .sources-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    color: var(--accent);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0.3rem 0;
+    font-family: inherit;
+  }
+
+  .sources-toggle:hover { text-decoration: underline; }
+
+  .sources-list {
+    display: none;
+    margin-top: 0.5rem;
+  }
+
+  .sources-list.open { display: block; }
+
+  .sources-list a {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--accent-dim);
+    text-decoration: none;
+    padding: 0.2rem 0;
+    line-height: 1.5;
+  }
+
+  .sources-list a:hover { color: var(--accent); text-decoration: underline; }
+
+  /* ── Skeptic caveat ── */
+  .caveat {
+    background: rgba(248, 113, 113, 0.08);
+    border-left: 3px solid var(--red);
+    border-radius: 0 6px 6px 0;
+    padding: 0.7rem 0.9rem;
+    margin-top: 0.5rem;
+  }
+
+  .caveat-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--red);
+    margin-bottom: 0.3rem;
+  }
+
+  .caveat-text {
+    font-size: 0.84rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .caveat-text strong { color: var(--text); font-weight: 500; }
+
+  .evidence-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .evidence-bar-label {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+
+  .evidence-bar-track {
+    flex: 1;
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .evidence-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+  }
+
+  .critical-intro {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.15rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  .critical-intro strong { color: var(--red); }
+
+  /* ── Summary table ── */
+  .summary-grid {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .summary-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.85rem 1.15rem;
+  }
+
+  .summary-supp {
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .summary-cost {
+    font-size: 0.85rem;
+    color: var(--green);
+    font-weight: 600;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .summary-cost.none {
+    color: var(--text-dim);
+  }
+
+  .total-row {
+    background: var(--surface2);
+    border-color: var(--accent-dim);
+  }
+
+  .total-row .summary-supp { color: var(--accent); }
+  .total-row .summary-cost { color: var(--accent); font-size: 1rem; }
+
+  .food-icon { margin-right: 0.25rem; }
+
+  .footer-note {
+    margin-top: 2.5rem;
+    padding: 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+
+  .footer-note strong { color: var(--amber); font-weight: 600; }
+
+  @media (max-width: 600px) {
+    .container { padding: 1.25rem 1rem 3rem; }
+    header h1 { font-size: 1.35rem; }
+    .card-header { padding: 0.85rem 1rem; }
+    .card-content { padding: 0 1rem 1rem; }
+    .tabs { gap: 0; }
+    .tab-btn { padding: 0.65rem 0.85rem; font-size: 0.82rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Daily Supplement Protocol</h1>
+    <p class="subtitle">Evidence-based timing, pairing & product guide</p>
+    <div class="profile-bar">
+      <span class="tag">40s male</span>
+      <span class="tag">Lifts 3×/wk</span>
+      <span class="tag">Omnivore</span>
+      <span class="tag">Longevity focus</span>
+      <span class="tag active">4 of 7 covered</span>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="supplements">All Supplements</button>
+    <button class="tab-btn" data-tab="schedule">Daily Schedule</button>
+    <button class="tab-btn" data-tab="cost">Monthly Cost</button>
+  </div>
+
+  <!-- ════════════ SCHEDULE TAB ════════════ -->
+  <div id="schedule" class="tab-content">
+
+    <div class="timeline">
+
+      <!-- MORNING -->
+      <div class="time-block morning">
+        <div class="time-label">Morning · with breakfast</div>
+        <div class="time-note">Take these with a fat-containing meal (eggs, avocado, butter, etc.) for optimal absorption of fat-soluble vitamins.</div>
+
+        <div class="card" onclick="toggleCard(this)">
+          <div class="card-header">
+            <div class="card-left">
+              <div class="card-icon" style="background:rgba(251,191,36,0.15);">☀️</div>
+              <div class="card-title-group">
+                <div class="card-title">AG1 Athletic Greens</div>
+                <div class="card-dose">1 scoop · mixed in water</div>
+              </div>
+            </div>
+            <span class="status-pill taking">Taking</span>
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="card-body"><div class="card-content">
+            <div class="detail-section">
+              <div class="detail-label">Why morning</div>
+              <div class="detail-text">The B-vitamins in AG1 can be mildly stimulating — morning ensures they don't interfere with sleep. The greens blend and probiotics are best absorbed on an empty-to-light stomach.</div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Pairing note</div>
+              <div class="detail-text"><span class="food-icon">🥚</span> Take <strong>before or during breakfast</strong>, not on a completely empty stomach if you're sensitive. AG1 contains some magnesium and ashwagandha, which contribute to but don't fully cover those needs.</div>
+            </div>
+            <div class="detail-section">
+              <div class="caveat">
+                <div class="caveat-label">Skeptic's note on AG1</div>
+                <div class="caveat-text">No fully independent clinical trials have been published on AG1 itself. The proprietary blend hides individual ingredient doses, making it impossible to know whether any single ingredient is at a therapeutic level. McGill's Office for Science and Society describes it as "an overpriced mega-multivitamin with bells and whistles most people don't need." If you eat a varied omnivore diet, a standard multivitamin (or nothing) may provide equivalent benefit at a fraction of the cost. The ~$3/day price tag is the largest line item in your entire stack.</div>
+              </div>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="card" onclick="toggleCard(this)">
+          <div class="card-header">
+            <div class="card-left">
+              <div class="card-icon" style="background:rgba(251,191,36,0.15);">💧</div>
+              <div class="card-title-group">
+                <div class="card-title">AG1 Vitamin D3 + K2 Drops</div>
+                <div class="card-dose">2 drops · 2,000 IU D3 + 200μg K2</div>
+              </div>
+            </div>
+            <span class="status-pill taking">Taking</span>
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="card-body"><div class="card-content">
+            <div class="detail-section">
+              <div class="detail-label">Why with fat</div>
+              <div class="detail-text">Both D3 and K2 are fat-soluble vitamins. A 2015 study showed vitamin D absorption increased by <strong>~50%</strong> when taken with a fat-containing meal versus on an empty stomach. Your 2 drops + AG1 gives you ~3,000 IU D3 and ~200μg K2 daily — right in the optimal range.</div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Pairing note</div>
+              <div class="detail-text"><span class="food-icon">🥑</span> Drop directly onto food or into your mouth alongside <strong>eggs, avocado toast, yogurt with nuts</strong> — anything with dietary fat works.</div>
+            </div>
+            <div class="detail-section">
+              <button class="sources-toggle" onclick="event.stopPropagation(); toggleSources(this)">📄 View sources <span style="font-size:0.7rem">▼</span></button>
+              <div class="sources-list">
+                <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12029153/" target="_blank">Optimal 25(OH)D levels — dose-response meta-analyses (PMC, 2024)</a>
+                <a href="https://www.nature.com/articles/s41574-021-00593-z" target="_blank">Vitamin D health effects — Nature Reviews Endocrinology (2022)</a>
+                <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10857599/" target="_blank">Case for 2,000 IU daily (PMC, 2024)</a>
+                <a href="https://boneandjoint.org.uk/Article/10.1302/2046-3758.1312.BJR-2024-0053.R1" target="_blank">K2 (MK-7) & bone mineral density meta-analysis (Bone & Joint, 2024)</a>
+                <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7238900/" target="_blank">Vitamin K2 & cardiovascular health (PMC, 2020)</a>
+              </div>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="card" onclick="toggleCard(this)">
+          <div class="card-header">
+            <div class="card-left">
+              <div class="card-icon" style="background:rgba(108,140,255,0.15);">🐟</div>
+              <div class="card-title-group">
+                <div class="card-title">Omega-3 Fish Oil</div>
+                <div class="card-dose">1–2g EPA+DHA · biggest gap in your stack</div>
+              </div>
+            </div>
+            <span class="status-pill add">Add</span>
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="card-body"><div class="card-content">
+            <div class="detail-section">
+              <div class="detail-label">Why morning with food</div>
+              <div class="detail-text">Like D3/K2, omega-3s are fat-soluble. Taking them with your fattiest meal maximizes absorption and minimizes fishy aftertaste or reflux. Morning with breakfast is ideal if that's your substantial meal.</div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Why this matters</div>
+              <div class="detail-text">A meta-analysis of <strong>13 RCTs (127,477 participants)</strong> found marine omega-3 supplementation reduced risk of MI, CHD death, and total CVD with a dose-response relationship. AG1 contains <strong>zero omega-3s</strong> — this is the single biggest gap in your current protocol.</div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Recommended product</div>
+              <div class="product-rec">
+                <div class="product-name">Carlson Labs — The Very Finest Fish Oil (liquid)</div>
+                <div class="product-details">1,600mg omega-3s per tsp (800mg EPA + 500mg DHA) · IFOS certified · Non-GMO Project verified · Wild-caught Norwegian fish</div>
+                <div class="product-price">~$24/bottle (100 servings) · ~$0.24/day</div>
+                <div class="product-alt"><strong>Capsule alternative:</strong> Nordic Naturals Ultimate Omega — 1,280mg omega-3 per 2 softgels, Friend of the Sea certified, COA available online. ~$35 for 60 softgels (~$1.17/day).</div>
+              </div>
+            </div>
+            <div class="detail-section">
+              <button class="sources-toggle" onclick="event.stopPropagation(); toggleSources(this)">📄 View 5 sources <span style="font-size:0.7rem">▼</span></button>
+              <div class="sources-list">
+                <a href="https://www.ahajournals.org/doi/10.1161/JAHA.119.013543" target="_blank">Marine omega-3 & CVD — meta-analysis of 13 RCTs (JAHA, 2019)</a>
+                <a href="https://www.sciencedirect.com/science/article/abs/pii/S0261561422000735" target="_blank">Dose-related omega-3 & MACE (Clinical Nutrition, 2022)</a>
+                <a href="https://www.thelancet.com/journals/eclinm/article/piis2589-5370(21)00277-7/fulltext" target="_blank">Omega-3 & cardiovascular outcomes (eClinicalMedicine/Lancet, 2021)</a>
+                <a href="https://www.nature.com/articles/s41598-025-21193-1" target="_blank">Omega-3 & mortality in CVD patients (Scientific Reports, 2025)</a>
+                <a href="https://onlinelibrary.wiley.com/doi/10.1002/ctd2.70094" target="_blank">Omega-3 & CVD risk meta-regression (2025)</a>
+              </div>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="card" onclick="toggleCard(this)">
+          <div class="card-header">
+            <div class="card-left">
+              <div class="card-icon" style="background:rgba(251,191,36,0.15);">⚡</div>
+              <div class="card-title-group">
+                <div class="card-title">Creatine Monohydrate</div>
+                <div class="card-dose">5g · mixed into any liquid</div>
+              </div>
+            </div>
+            <span class="status-pill taking">Taking</span>
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="card-body"><div class="card-content">
+            <div class="detail-section">
+              <div class="detail-label">Timing flexibility</div>
+              <div class="detail-text">Creatine timing doesn't matter much — what matters is <strong>daily consistency</strong>. Morning with AG1 is a convenient routine. Some research shows slightly better uptake with carbohydrates, but the effect is marginal. Just take it the same time every day.</div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Why it's #1</div>
+              <div class="detail-text">Most well-studied sports supplement in existence. Beyond muscle and strength, a <strong>2024 meta-analysis (19 studies, 1,488 participants)</strong> found it significantly improved processing speed and memory. A 2025 review confirmed benefits for lean mass, bone thickness, and cognition in aging populations.</div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Recommended product</div>
+              <div class="product-rec">
+                <div class="product-name">Thorne Creatine (Creapure®)</div>
+                <div class="product-details">Creapure-sourced from Germany · NSF Certified for Sport + Informed Sport · Mayo Clinic partner · Zero additives</div>
+                <div class="product-price">~$55 for 90 servings · ~$0.61/day</div>
+                <div class="product-alt"><strong>Budget pick:</strong> Naked Creatine — also Creapure-sourced, third-party tested, ~$30 for 100 servings (~$0.30/day). Same molecule, less certification.</div>
+              </div>
+            </div>
+            <div class="detail-section">
+              <button class="sources-toggle" onclick="event.stopPropagation(); toggleSources(this)">📄 View 4 sources <span style="font-size:0.7rem">▼</span></button>
+              <div class="sources-list">
+                <a href="https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2024.1424972/full" target="_blank">Creatine & cognitive function meta-analysis (Frontiers in Nutrition, 2024)</a>
+                <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12272710/" target="_blank">Creatine for older adults & clinical populations (PMC, 2025)</a>
+                <a href="https://academic.oup.com/nutritionreviews/article/81/4/416/6671817" target="_blank">Creatine & memory meta-analysis (Nutrition Reviews, 2022)</a>
+                <a href="https://academic.oup.com/nutritionreviews/advance-article/doi/10.1093/nutrit/nuaf135/8253584" target="_blank">Creatine & cognition in aging (Nutrition Reviews, 2025)</a>
+              </div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- PRE-TRAINING -->
+      <div class="time-block training">
+        <div class="time-label">30–60 min before training · training days only</div>
+        <div class="time-note">Take with a small amount of vitamin C (orange juice, a kiwi, or 250mg supplement) to support collagen synthesis.</div>
+
+        <div class="card" onclick="toggleCard(this)">
+          <div class="card-header">
+            <div class="card-left">
+              <div class="card-icon" style="background:rgba(74,222,128,0.15);">🦴</div>
+              <div class="card-title-group">
+                <div class="card-title">Collagen Peptides</div>
+                <div class="card-dose">15g · dissolved in water or coffee</div>
+              </div>
+            </div>
+            <span class="status-pill add">Add</span>
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="card-body"><div class="card-content">
+            <div class="detail-section">
+              <div class="detail-label">Why pre-training</div>
+              <div class="detail-text">Research from Keith Baar's lab at UC Davis suggests that collagen peptides taken <strong>30–60 minutes before exercise</strong>, paired with vitamin C, maximizes collagen synthesis in tendons and ligaments during the mechanical loading that follows. This timing takes advantage of the amino acid peak in blood coinciding with training stimulus.</div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Why it matters for lifters in their 40s</div>
+              <div class="detail-text">A <strong>2024 meta-analysis in Sports Medicine (19 studies, 768 participants)</strong> found collagen peptides + exercise improved tendon morphology and maximal strength. Your tendons and ligaments are the most likely limiter for long-term training consistency. This is an investment in training longevity.</div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Rest days</div>
+              <div class="detail-text">Still take it on rest days — just have it in the morning with vitamin C. Connective tissue remodeling is ongoing.</div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Recommended product</div>
+              <div class="product-rec">
+                <div class="product-name">Great Lakes Wellness Collagen Peptides</div>
+                <div class="product-details">Type I & III bovine collagen · Grass-fed, pasture-raised · Single ingredient · Dissolves easily in hot or cold liquid</div>
+                <div class="product-price">~$20 for 38 servings (10g) · ~$0.79/day at 15g</div>
+                <div class="product-alt"><strong>Premium pick:</strong> Vital Proteins Collagen Peptides — same quality, more brand recognition. ~$27 at Costco for 1.5 lbs (~$0.90/day at 15g). Slightly better dissolving in cold liquids.</div>
+              </div>
+            </div>
+            <div class="detail-section">
+              <button class="sources-toggle" onclick="event.stopPropagation(); toggleSources(this)">📄 View 4 sources <span style="font-size:0.7rem">▼</span></button>
+              <div class="sources-list">
+                <a href="https://link.springer.com/article/10.1007/s40279-024-02079-0" target="_blank">Collagen & musculotendinous remodeling — Sports Medicine meta-analysis (2024)</a>
+                <a href="https://www.germanjournalsportsmedicine.com/archive/archive-2024/issue-5/collagen-peptide-supplementation-and-musculoskeletal-performance-a-systematic-review-and-meta-analysis/" target="_blank">Collagen & musculoskeletal performance (German J Sports Med, 2024)</a>
+                <a href="https://pubmed.ncbi.nlm.nih.gov/39212129/" target="_blank">Collagen & knee osteoarthritis meta-analysis (PubMed, 2024)</a>
+                <a href="https://pubmed.ncbi.nlm.nih.gov/40623147/" target="_blank">Collagen, tendon stiffness & explosive strength RCT (PubMed, 2025)</a>
+              </div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- POST-TRAINING / MIDDAY -->
+      <div class="time-block midday">
+        <div class="time-label">Post-training or lunch</div>
+        <div class="time-note">Protein timing around training supports muscle protein synthesis. Pair with a meal.</div>
+
+        <div class="card" onclick="toggleCard(this)">
+          <div class="card-header">
+            <div class="card-left">
+              <div class="card-icon" style="background:rgba(251,146,60,0.15);">💪</div>
+              <div class="card-title-group">
+                <div class="card-title">Protein Powder</div>
+                <div class="card-dose">25–40g · in shake or mixed into food</div>
+              </div>
+            </div>
+            <span class="status-pill taking">Taking</span>
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="card-body"><div class="card-content">
+            <div class="detail-section">
+              <div class="detail-label">Timing rationale</div>
+              <div class="detail-text">The "anabolic window" is wider than bro-science suggests (2–3 hours post-training), but having protein within a couple hours of lifting does support muscle protein synthesis. Post-workout or lunchtime works well.</div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Dose note</div>
+              <div class="detail-text">At 25g you're on the low side. Research suggests <strong>1.6–2.2g protein per kg bodyweight</strong> is optimal for resistance-trained individuals. Consider bumping to 30–40g per shake if your whole-food protein intake doesn't hit that target.</div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- EVENING -->
+      <div class="time-block evening">
+        <div class="time-label">Evening · 30–60 min before bed</div>
+        <div class="time-note">Magnesium glycinate supports relaxation and sleep onset. Take on an empty-ish stomach or with a light snack.</div>
+
+        <div class="card" onclick="toggleCard(this)">
+          <div class="card-header">
+            <div class="card-left">
+              <div class="card-icon" style="background:rgba(167,139,250,0.15);">🌙</div>
+              <div class="card-title-group">
+                <div class="card-title">Magnesium Glycinate</div>
+                <div class="card-dose">200–400mg elemental · capsules or powder</div>
+              </div>
+            </div>
+            <span class="status-pill add">Add</span>
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="card-body"><div class="card-content">
+            <div class="detail-section">
+              <div class="detail-label">Why evening</div>
+              <div class="detail-text">Magnesium glycinate has a calming effect through GABA receptor modulation. A <strong>2024 RCT</strong> found magnesium L-threonate significantly improved sleep quality in adults aged 35–55. Evening dosing aligns the relaxation effect with your wind-down period and supports overnight muscle recovery.</div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Pairing note</div>
+              <div class="detail-text"><span class="food-icon">🫖</span> Can be taken with <strong>herbal tea or a light snack</strong>. Avoid taking with high-dose calcium or zinc supplements at the same time — they compete for absorption. Separate from your morning AG1 by at least a few hours (which evening timing naturally does).</div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Recommended products</div>
+              <div class="product-rec">
+                <div class="product-name">Pure Encapsulations — Magnesium Glycinate</div>
+                <div class="product-details">120mg elemental magnesium per capsule · Hypoallergenic · Third-party tested · No fillers or coatings</div>
+                <div class="product-price">~$24 for 90 caps · ~$0.53/day (at 2 caps)</div>
+                <div class="product-alt"><strong>For cognitive focus:</strong> Life Extension Neuro-Mag (Magtein® Magnesium L-Threonate) — specifically studied for brain bioavailability. 2,000mg Magtein per serving. ~$30 for 90 caps (~$1.00/day). Consider this if cognitive sharpness is a priority alongside sleep.</div>
+              </div>
+            </div>
+            <div class="detail-section">
+              <button class="sources-toggle" onclick="event.stopPropagation(); toggleSources(this)">📄 View 4 sources <span style="font-size:0.7rem">▼</span></button>
+              <div class="sources-list">
+                <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11381753/" target="_blank">Magnesium L-threonate & sleep RCT (PMC, 2024)</a>
+                <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12412596/" target="_blank">Magnesium bisglycinate & sleep RCT (PMC, 2025)</a>
+                <a href="https://pubmed.ncbi.nlm.nih.gov/33865376/" target="_blank">Magnesium & insomnia meta-analysis (PubMed, 2021)</a>
+                <a href="https://pubmed.ncbi.nlm.nih.gov/35184264/" target="_blank">Magnesium & sleep systematic review (PubMed, 2022)</a>
+              </div>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="card" onclick="toggleCard(this)">
+          <div class="card-header">
+            <div class="card-left">
+              <div class="card-icon" style="background:rgba(139,143,163,0.15);">🌿</div>
+              <div class="card-title-group">
+                <div class="card-title">Ashwagandha (KSM-66)</div>
+                <div class="card-dose">300–600mg · cycle 8 wks on / 2–4 wks off</div>
+              </div>
+            </div>
+            <span class="status-pill optional">Optional</span>
+            <span class="expand-icon">▼</span>
+          </div>
+          <div class="card-body"><div class="card-content">
+            <div class="detail-section">
+              <div class="detail-label">Why evening (if taking)</div>
+              <div class="detail-text">Ashwagandha's cortisol-lowering effect synergizes with evening relaxation. A <strong>2025 meta-analysis</strong> confirmed significant cortisol reduction at 8 weeks. AG1 already contains some ashwagandha, so this is only worth adding if you're specifically targeting stress management or testosterone optimization.</div>
+            </div>
+            <div class="detail-section">
+              <div class="detail-label">Recommended product</div>
+              <div class="product-rec">
+                <div class="product-name">Nootropics Depot — KSM-66 Ashwagandha</div>
+                <div class="product-details">600mg KSM-66 full-spectrum root extract per cap · In-house + third-party tested · The specific extract used in most clinical trials</div>
+                <div class="product-price">~$20 for 90 caps · ~$0.22/day</div>
+                <div class="product-alt"><strong>Alternative:</strong> Jarrow Formulas Ashwagandha (Sensoril®) — different extract, more studied for anxiety specifically. ~$15 for 60 caps (~$0.25/day).</div>
+              </div>
+            </div>
+            <div class="detail-section">
+              <button class="sources-toggle" onclick="event.stopPropagation(); toggleSources(this)">📄 View 5 sources <span style="font-size:0.7rem">▼</span></button>
+              <div class="sources-list">
+                <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12242034/" target="_blank">Ashwagandha & cortisol/stress meta-analysis (PMC, 2025)</a>
+                <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6438434/" target="_blank">Ashwagandha & hormones in aging males RCT (PMC, 2019)</a>
+                <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11800443/" target="_blank">Ashwagandha mechanisms & health benefits (PMC, 2025)</a>
+                <a href="https://www.mdpi.com/2072-6643/18/2/230" target="_blank">Ashwagandha & athlete recovery (MDPI Nutrients, 2025)</a>
+                <a href="https://ods.od.nih.gov/factsheets/Ashwagandha-HealthProfessional/" target="_blank">NIH Office of Dietary Supplements — Ashwagandha</a>
+              </div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ════════════ ALL SUPPLEMENTS TAB ════════════ -->
+  <div id="supplements" class="tab-content active">
+
+    <div class="critical-intro">
+      <strong>⚠ Skeptic's lens applied.</strong> Each supplement below now includes a red-flagged caveat section reflecting critiques from independent academics, null-result trials, and potential conflicts of interest in the literature. Evidence strength bars reflect the overall quality and consistency of the research — not just whether positive studies exist.
+    </div>
+
+    <div class="card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div class="card-left">
+          <div class="card-icon" style="background:rgba(74,222,128,0.15);">⚡</div>
+          <div class="card-title-group">
+            <div class="card-title">1. Creatine Monohydrate</div>
+            <div class="card-dose">5g/day · any time, just be consistent</div>
+          </div>
+        </div>
+        <span class="status-pill taking">Taking</span>
+        <span class="expand-icon">▼</span>
+      </div>
+      <div class="card-body"><div class="card-content">
+        <div class="detail-section">
+          <div class="detail-text">The single most well-studied sports supplement. Beyond strength gains, meta-analyses show cognitive benefits (improved processing speed and memory) and protective effects on bone density and lean mass with aging. Continue 5g/day — you're doing this right.</div>
+        </div>
+        <div class="evidence-bar">
+          <span class="evidence-bar-label">Evidence strength</span>
+          <div class="evidence-bar-track"><div class="evidence-bar-fill" style="width:92%; background:var(--green);"></div></div>
+          <span class="evidence-bar-label" style="color:var(--green);">Strong</span>
+        </div>
+        <div class="detail-section">
+          <div class="caveat">
+            <div class="caveat-label">Skeptic's caveat</div>
+            <div class="caveat-text">Creatine is the rare supplement that survives scrutiny. The main legitimate concern — kidney damage — has been <strong>thoroughly debunked</strong>. A 2025 meta-analysis in <em>BMC Nephrology</em> confirmed that creatine causes a modest rise in serum creatinine (a metabolic byproduct, not kidney damage), with no significant changes in GFR. However, <strong>caution is warranted for those with pre-existing kidney conditions</strong>, as evidence in that population is lacking. The cognitive benefits, while real, are modest and mostly demonstrated in sleep-deprived or vegetarian populations — the effect size in well-rested omnivores may be smaller than headlines suggest.</div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Buy</div>
+          <div class="detail-text"><strong>Thorne Creatine (Creapure®)</strong> — ~$0.61/day · NSF + Informed Sport certified<br><strong>Budget:</strong> Naked Creatine — ~$0.30/day · same Creapure source</div>
+        </div>
+        <div class="detail-section">
+          <button class="sources-toggle" onclick="event.stopPropagation(); toggleSources(this)">📄 View 6 sources <span style="font-size:0.7rem">▼</span></button>
+          <div class="sources-list">
+            <a href="https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2024.1424972/full" target="_blank">Creatine & cognitive function meta-analysis (Frontiers in Nutrition, 2024)</a>
+            <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12272710/" target="_blank">Creatine for older adults & clinical populations (PMC, 2025)</a>
+            <a href="https://academic.oup.com/nutritionreviews/article/81/4/416/6671817" target="_blank">Creatine & memory meta-analysis (Nutrition Reviews, 2022)</a>
+            <a href="https://academic.oup.com/nutritionreviews/advance-article/doi/10.1093/nutrit/nuaf135/8253584" target="_blank">Creatine & cognition in aging (Nutrition Reviews, 2025)</a>
+            <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12590749/" target="_blank">Creatine & kidney function — systematic review & meta-analysis (BMC Nephrology, 2025)</a>
+            <a href="https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2025.1682746/full" target="_blank">Common safety concerns regarding creatine (Frontiers in Nutrition, 2025)</a>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div class="card-left">
+          <div class="card-icon" style="background:rgba(251,191,36,0.15);">☀️</div>
+          <div class="card-title-group">
+            <div class="card-title">2. Vitamin D₃ + K2</div>
+            <div class="card-dose">~3,000 IU D3 + ~200μg K2 · via AG1 stack</div>
+          </div>
+        </div>
+        <span class="status-pill taking">Covered</span>
+        <span class="expand-icon">▼</span>
+      </div>
+      <div class="card-body"><div class="card-content">
+        <div class="detail-section">
+          <div class="detail-text">Your AG1 powder (~1,000 IU) + 2 D3+K2 drops (2,000 IU D3, 200μg K2-MK7) puts you squarely in the evidence-based optimal range. D3 reduces cancer mortality and respiratory infection risk; K2 directs calcium to bones instead of arteries. No changes needed — just confirm with a 25(OH)D blood test.</div>
+        </div>
+        <div class="evidence-bar">
+          <span class="evidence-bar-label">Evidence strength</span>
+          <div class="evidence-bar-track"><div class="evidence-bar-fill" style="width:60%; background:var(--amber);"></div></div>
+          <span class="evidence-bar-label" style="color:var(--amber);">Mixed</span>
+        </div>
+        <div class="detail-section">
+          <div class="caveat">
+            <div class="caveat-label">Skeptic's caveat</div>
+            <div class="caveat-text">The <strong>VITAL trial</strong> (25,871 participants, NEJM 2022) — the largest RCT of vitamin D supplementation — found <strong>no benefit</strong> for cancer incidence, cardiovascular events, or fracture prevention in healthy adults not selected for deficiency. Critically, ~40% of the control group was already taking vitamin D, diluting the comparison. An NEJM editorial called the results a "decisive verdict" against routine supplementation in replete adults. The benefits appear real only for people who are actually deficient (25(OH)D < 20 ng/mL). Since you eat well and may get sun exposure, <strong>your levels might already be fine without any supplementation</strong> — which is exactly why bloodwork matters more than a default dose. K2 evidence is thinner: the arterial stiffness RCT is a single study, and most K2 cardiovascular evidence is observational.</div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <button class="sources-toggle" onclick="event.stopPropagation(); toggleSources(this)">📄 View 7 sources <span style="font-size:0.7rem">▼</span></button>
+          <div class="sources-list">
+            <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12029153/" target="_blank">Optimal 25(OH)D levels — dose-response meta-analyses (PMC, 2024)</a>
+            <a href="https://www.nature.com/articles/s41574-021-00593-z" target="_blank">Vitamin D health effects — Nature Reviews Endocrinology (2022)</a>
+            <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10857599/" target="_blank">Case for 2,000 IU daily (PMC, 2024)</a>
+            <a href="https://boneandjoint.org.uk/Article/10.1302/2046-3758.1312.BJR-2024-0053.R1" target="_blank">K2 (MK-7) & bone mineral density meta-analysis (Bone & Joint, 2024)</a>
+            <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7238900/" target="_blank">Vitamin K2 & cardiovascular health (PMC, 2020)</a>
+            <a href="https://www.nejm.org/doi/full/10.1056/NEJMe2205993" target="_blank">VITAL Findings — A Decisive Verdict on Vitamin D (NEJM, 2022)</a>
+            <a href="https://www.mayoclinicproceedings.org/article/S0025-6196(24)00034-X/fulltext" target="_blank">Vitamin D Supplementation: To D or Not to D? (Mayo Clinic Proceedings, 2024)</a>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div class="card-left">
+          <div class="card-icon" style="background:rgba(108,140,255,0.15);">🐟</div>
+          <div class="card-title-group">
+            <div class="card-title">3. Omega-3 Fish Oil</div>
+            <div class="card-dose">1–2g EPA+DHA · morning with fat</div>
+          </div>
+        </div>
+        <span class="status-pill add">Add</span>
+        <span class="expand-icon">▼</span>
+      </div>
+      <div class="card-body"><div class="card-content">
+        <div class="detail-section">
+          <div class="detail-text">Biggest gap in your current stack. Meta-analysis of 127K+ participants shows reduced cardiovascular risk with dose-response relationship. AG1 contains zero omega-3s. Benefits strongest in people with low baseline intake or existing CVD risk factors.</div>
+        </div>
+        <div class="evidence-bar">
+          <span class="evidence-bar-label">Evidence strength</span>
+          <div class="evidence-bar-track"><div class="evidence-bar-fill" style="width:55%; background:var(--amber);"></div></div>
+          <span class="evidence-bar-label" style="color:var(--amber);">Mixed</span>
+        </div>
+        <div class="detail-section">
+          <div class="caveat">
+            <div class="caveat-label">Skeptic's caveat</div>
+            <div class="caveat-text">The picture here is more complicated than the supplement industry suggests. The <strong>STRENGTH trial</strong> (AHA 2020) found that high-dose omega-3 carboxylic acids provided <strong>no cardiovascular benefit</strong> over corn oil placebo — and increased atrial fibrillation risk. A meta-analysis in <em>Circulation</em> found omega-3 supplementation was associated with a <strong>37% increased risk of atrial fibrillation</strong> (IRR 1.37, 95% CI 1.22–1.54), with a dose-dependent relationship: doses >1g/day showed a 49% increase vs. 12% at ≤1g/day. The VITAL trial also found no significant CVD benefit from omega-3s in healthy adults. The positive meta-analyses are heavily influenced by the REDUCE-IT trial (icosapent ethyl), which used a mineral oil placebo that may have inflated the treatment effect. For a <strong>healthy 40-year-old with no CVD risk factors who eats fish occasionally</strong>, the net benefit of supplementation is genuinely uncertain. If you do supplement, <strong>staying at ≤1g/day</strong> appears to minimize the AFib signal.</div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Buy</div>
+          <div class="detail-text"><strong>Carlson Labs Very Finest Fish Oil (liquid)</strong> — ~$0.24/day · IFOS certified<br><strong>Capsules:</strong> Nordic Naturals Ultimate Omega — ~$1.17/day · Friend of the Sea</div>
+        </div>
+        <div class="detail-section">
+          <button class="sources-toggle" onclick="event.stopPropagation(); toggleSources(this)">📄 View 8 sources <span style="font-size:0.7rem">▼</span></button>
+          <div class="sources-list">
+            <a href="https://www.ahajournals.org/doi/10.1161/JAHA.119.013543" target="_blank">Marine omega-3 & CVD — meta-analysis of 13 RCTs (JAHA, 2019)</a>
+            <a href="https://www.sciencedirect.com/science/article/abs/pii/S0261561422000735" target="_blank">Dose-related omega-3 & MACE (Clinical Nutrition, 2022)</a>
+            <a href="https://www.thelancet.com/journals/eclinm/article/piis2589-5370(21)00277-7/fulltext" target="_blank">Omega-3 & cardiovascular outcomes (eClinicalMedicine/Lancet, 2021)</a>
+            <a href="https://www.nature.com/articles/s41598-025-21193-1" target="_blank">Omega-3 & mortality in CVD patients (Scientific Reports, 2025)</a>
+            <a href="https://onlinelibrary.wiley.com/doi/10.1002/ctd2.70094" target="_blank">Omega-3 & CVD risk meta-regression (2025)</a>
+            <a href="https://newsroom.heart.org/news/strength-trial-finds-new-fish-oil-medication-did-not-reduce-the-risk-of-cardiac-events" target="_blank">STRENGTH trial — no benefit found (AHA, 2020)</a>
+            <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9109217/" target="_blank">Omega-3 & atrial fibrillation risk — systematic review & meta-analysis (Circulation, 2022)</a>
+            <a href="https://www.ahajournals.org/doi/10.1161/CIRCULATIONAHA.121.058596" target="_blank">Fishing for links between omega-3 and AFib (Circulation editorial)</a>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div class="card-left">
+          <div class="card-icon" style="background:rgba(167,139,250,0.15);">🌙</div>
+          <div class="card-title-group">
+            <div class="card-title">4. Magnesium Glycinate</div>
+            <div class="card-dose">200–400mg elemental · evening before bed</div>
+          </div>
+        </div>
+        <span class="status-pill add">Add</span>
+        <span class="expand-icon">▼</span>
+      </div>
+      <div class="card-body"><div class="card-content">
+        <div class="detail-section">
+          <div class="detail-text">Involved in 300+ enzymatic reactions. Subclinical deficiency is widespread. RCTs show improved sleep quality in adults 35–55. Supports muscle recovery, blood pressure regulation, and glucose metabolism. AG1 has some magnesium but likely not enough of the right form.</div>
+        </div>
+        <div class="evidence-bar">
+          <span class="evidence-bar-label">Evidence strength</span>
+          <div class="evidence-bar-track"><div class="evidence-bar-fill" style="width:45%; background:var(--amber);"></div></div>
+          <span class="evidence-bar-label" style="color:var(--amber);">Moderate</span>
+        </div>
+        <div class="detail-section">
+          <div class="caveat">
+            <div class="caveat-label">Skeptic's caveat</div>
+            <div class="caveat-text">Magnesium is a <strong>social media darling</strong> that has outrun its evidence base. Harvard Health (2025) notes that many magnesium sleep studies are "quite small" with "inconsistent results," and that the evidence for sleep benefits in people without deficiency is weak. McGill's Office for Science and Society states plainly that magnesium "does not perform miracles" and that a healthy diet with fruits, vegetables, and whole grains provides sufficient amounts. The "300+ enzymatic reactions" talking point, while biochemically true, <strong>doesn't mean supplementation helps</strong> — those reactions require adequate magnesium, not excess. A Tufts review concludes that unless you have a <strong>diagnosed or suspected deficiency</strong>, there's no compelling reason to supplement. If you eat nuts, seeds, leafy greens, and whole grains regularly, you may already be replete. This is the supplement most likely to be unnecessary if you genuinely "eat pretty well."</div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Buy</div>
+          <div class="detail-text"><strong>Pure Encapsulations Magnesium Glycinate</strong> — ~$0.53/day · hypoallergenic<br><strong>Cognitive focus:</strong> Life Extension Neuro-Mag (Magtein®) — ~$1.00/day · L-threonate form crosses blood-brain barrier</div>
+        </div>
+        <div class="detail-section">
+          <button class="sources-toggle" onclick="event.stopPropagation(); toggleSources(this)">📄 View 7 sources <span style="font-size:0.7rem">▼</span></button>
+          <div class="sources-list">
+            <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11381753/" target="_blank">Magnesium L-threonate & sleep RCT (PMC, 2024)</a>
+            <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12412596/" target="_blank">Magnesium bisglycinate & sleep RCT (PMC, 2025)</a>
+            <a href="https://pubmed.ncbi.nlm.nih.gov/33865376/" target="_blank">Magnesium & insomnia meta-analysis (PubMed, 2021)</a>
+            <a href="https://pubmed.ncbi.nlm.nih.gov/35184264/" target="_blank">Magnesium & sleep systematic review (PubMed, 2022)</a>
+            <a href="https://medicine.tufts.edu/news-events/news/can-magnesium-supplements-improve-health" target="_blank">Can Magnesium Supplements Improve Health? (Tufts, 2024)</a>
+            <a href="https://www.mcgill.ca/oss/article/critical-thinking-health-and-nutrition-pseudoscience/magnesium-necessary-nutrient-it-does-not-perform-miracles" target="_blank">Magnesium does not perform miracles (McGill OSS)</a>
+            <a href="https://www.health.harvard.edu/blog/what-can-magnesium-do-for-you-and-how-much-do-you-need-202506033100" target="_blank">What can magnesium do for you? (Harvard Health, 2025)</a>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div class="card-left">
+          <div class="card-icon" style="background:rgba(74,222,128,0.15);">🦴</div>
+          <div class="card-title-group">
+            <div class="card-title">5. Collagen Peptides</div>
+            <div class="card-dose">15g · pre-training with vitamin C</div>
+          </div>
+        </div>
+        <span class="status-pill add">Add</span>
+        <span class="expand-icon">▼</span>
+      </div>
+      <div class="card-body"><div class="card-content">
+        <div class="detail-section">
+          <div class="detail-text">Tendons and joints are the limiting factor for long-term lifting consistency in your 40s. Meta-analysis shows improved tendon morphology and maximal strength when combined with exercise. Evidence is promising but still maturing (GRADE: very low certainty).</div>
+        </div>
+        <div class="evidence-bar">
+          <span class="evidence-bar-label">Evidence strength</span>
+          <div class="evidence-bar-track"><div class="evidence-bar-fill" style="width:30%; background:var(--red);"></div></div>
+          <span class="evidence-bar-label" style="color:var(--red);">Weak</span>
+        </div>
+        <div class="detail-section">
+          <div class="caveat">
+            <div class="caveat-label">Skeptic's caveat</div>
+            <div class="caveat-text">This is where skepticism is most warranted. The GRADE certainty for the key Sports Medicine meta-analysis was rated <strong>"very low"</strong> — the weakest possible rating. A 2025 meta-analysis in <em>The American Journal of Medicine</em> revealed a critical finding: <strong>studies not funded by supplement companies showed no significant effect</strong>, while industry-funded studies did — a textbook signal of publication/funding bias. Additionally, whey protein was shown to stimulate muscle protein synthesis more effectively than collagen peptides, and one study found no difference in muscle collagen synthesis between collagen and whey — suggesting <strong>exercise itself, not the protein type, drives the benefit</strong>. Harvard Health notes that your body breaks collagen peptides into amino acids just like any other protein. At 15g/day, you may simply be buying expensive glycine and proline that a varied diet already provides.</div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Buy</div>
+          <div class="detail-text"><strong>Great Lakes Wellness Collagen Peptides</strong> — ~$0.79/day · grass-fed, single ingredient<br><strong>Premium:</strong> Vital Proteins — ~$0.90/day · better cold-dissolving</div>
+        </div>
+        <div class="detail-section">
+          <button class="sources-toggle" onclick="event.stopPropagation(); toggleSources(this)">📄 View 7 sources <span style="font-size:0.7rem">▼</span></button>
+          <div class="sources-list">
+            <a href="https://link.springer.com/article/10.1007/s40279-024-02079-0" target="_blank">Collagen & musculotendinous remodeling — Sports Medicine meta-analysis (2024)</a>
+            <a href="https://www.germanjournalsportsmedicine.com/archive/archive-2024/issue-5/collagen-peptide-supplementation-and-musculoskeletal-performance-a-systematic-review-and-meta-analysis/" target="_blank">Collagen & musculoskeletal performance (German J Sports Med, 2024)</a>
+            <a href="https://pubmed.ncbi.nlm.nih.gov/39212129/" target="_blank">Collagen & knee osteoarthritis meta-analysis (PubMed, 2024)</a>
+            <a href="https://pubmed.ncbi.nlm.nih.gov/40623147/" target="_blank">Collagen, tendon stiffness & explosive strength RCT (PubMed, 2025)</a>
+            <a href="https://www.amjmed.com/article/S0002-9343(25)00283-9/abstract" target="_blank">Collagen & skin aging — funding bias revealed (Am J Medicine, 2025)</a>
+            <a href="https://www.health.harvard.edu/blog/considering-collagen-drinks-and-supplements-202304122911" target="_blank">Considering collagen supplements? (Harvard Health, 2023)</a>
+            <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8521576/" target="_blank">Collagen peptide supplementation — systematic review of limitations (PMC, 2021)</a>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="card" onclick="toggleCard(this)">
+      <div class="card-header">
+        <div class="card-left">
+          <div class="card-icon" style="background:rgba(139,143,163,0.15);">🌿</div>
+          <div class="card-title-group">
+            <div class="card-title">7. Ashwagandha</div>
+            <div class="card-dose">300–600mg KSM-66 · evening, cycled</div>
+          </div>
+        </div>
+        <span class="status-pill optional">Optional</span>
+        <span class="expand-icon">▼</span>
+      </div>
+      <div class="card-body"><div class="card-content">
+        <div class="detail-section">
+          <div class="detail-text">Solid evidence for cortisol reduction and modest testosterone increase. AG1 already contains some ashwagandha (likely subtherapeutic). Only worth adding separately if stress or testosterone is a specific concern. Cycle 8 weeks on, 2–4 weeks off.</div>
+        </div>
+        <div class="evidence-bar">
+          <span class="evidence-bar-label">Evidence strength</span>
+          <div class="evidence-bar-track"><div class="evidence-bar-fill" style="width:40%; background:var(--amber);"></div></div>
+          <span class="evidence-bar-label" style="color:var(--amber);">Moderate</span>
+        </div>
+        <div class="detail-section">
+          <div class="caveat">
+            <div class="caveat-label">Skeptic's caveat</div>
+            <div class="caveat-text"><strong>Emerging hepatotoxicity signal.</strong> The NIH LiverTox database now documents <strong>23 cases of clinically apparent liver injury</strong> attributed to ashwagandha, typically presenting 2–12 weeks after initiation with cholestatic hepatitis. While rare, cases include <strong>fatal liver failure and emergent liver transplantation</strong>, particularly in patients with pre-existing liver disease. A 2023 case series from India in <em>Hepatology Communications</em> documented additional cases. A 2025 AI-driven meta-analysis in <em>Frontiers in Nutrition</em> concluded the risk is minimal at recommended doses for the general population, but the signal is real. Additionally, the testosterone increase (14.7%) was demonstrated in <strong>overweight males aged 40–70</strong> in a single small crossover study — this is far from robust evidence. The cortisol reduction is better supported, but whether lowering cortisol in a healthy, non-chronically-stressed person is beneficial (vs. interfering with normal HPA axis function) is an open question. <strong>If you take this, get liver enzymes checked periodically.</strong></div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Buy</div>
+          <div class="detail-text"><strong>Nootropics Depot KSM-66</strong> — ~$0.22/day · the extract used in most trials<br><strong>Alt:</strong> Jarrow Formulas Sensoril® — ~$0.25/day · better for anxiety specifically</div>
+        </div>
+        <div class="detail-section">
+          <button class="sources-toggle" onclick="event.stopPropagation(); toggleSources(this)">📄 View 8 sources <span style="font-size:0.7rem">▼</span></button>
+          <div class="sources-list">
+            <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12242034/" target="_blank">Ashwagandha & cortisol/stress meta-analysis (PMC, 2025)</a>
+            <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6438434/" target="_blank">Ashwagandha & hormones in aging males RCT (PMC, 2019)</a>
+            <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11800443/" target="_blank">Ashwagandha mechanisms & health benefits (PMC, 2025)</a>
+            <a href="https://www.mdpi.com/2072-6643/18/2/230" target="_blank">Ashwagandha & athlete recovery (MDPI Nutrients, 2025)</a>
+            <a href="https://ods.od.nih.gov/factsheets/Ashwagandha-HealthProfessional/" target="_blank">NIH Office of Dietary Supplements — Ashwagandha</a>
+            <a href="https://www.ncbi.nlm.nih.gov/books/NBK548536/" target="_blank">Ashwagandha hepatotoxicity — NIH LiverTox database</a>
+            <a href="https://journals.lww.com/hepcomm/fulltext/2023/10010/ashwagandha_induced_liver_injury_a_case_series.37.aspx" target="_blank">Ashwagandha-induced liver injury case series (Hepatology Communications, 2023)</a>
+            <a href="https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2025.1658265/full" target="_blank">Comprehensive ashwagandha safety evaluation (Frontiers in Nutrition, 2025)</a>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+  </div>
+
+  <!-- ════════════ COST TAB ════════════ -->
+  <div id="cost" class="tab-content">
+
+    <p style="font-size:0.88rem; color:var(--text-dim); margin-bottom:1.5rem;">Estimated monthly cost for new additions only. Your existing supplements (AG1, creatine, protein, D3+K2 drops) are not included — you're already paying for those.</p>
+
+    <div class="summary-grid">
+      <div class="summary-row">
+        <div>
+          <div class="summary-supp">🐟 Omega-3 Fish Oil</div>
+          <div style="font-size:0.78rem; color:var(--text-dim);">Carlson Labs liquid (best value) or Nordic Naturals caps</div>
+        </div>
+        <div class="summary-cost">$7–35/mo</div>
+      </div>
+      <div class="summary-row">
+        <div>
+          <div class="summary-supp">🌙 Magnesium Glycinate</div>
+          <div style="font-size:0.78rem; color:var(--text-dim);">Pure Encapsulations (glycinate) or Life Extension Neuro-Mag (threonate)</div>
+        </div>
+        <div class="summary-cost">$16–30/mo</div>
+      </div>
+      <div class="summary-row">
+        <div>
+          <div class="summary-supp">🦴 Collagen Peptides</div>
+          <div style="font-size:0.78rem; color:var(--text-dim);">Great Lakes (budget) or Vital Proteins (premium)</div>
+        </div>
+        <div class="summary-cost">$24–27/mo</div>
+      </div>
+      <div class="summary-row">
+        <div>
+          <div class="summary-supp">🌿 Ashwagandha</div>
+          <div style="font-size:0.78rem; color:var(--text-dim);">Nootropics Depot KSM-66 (if you choose to add it)</div>
+        </div>
+        <div class="summary-cost none">$7/mo (optional)</div>
+      </div>
+      <div class="summary-row total-row">
+        <div>
+          <div class="summary-supp">Total new additions</div>
+          <div style="font-size:0.78rem; color:var(--text-dim);">Budget picks · per month</div>
+        </div>
+        <div class="summary-cost">~$47–92/mo</div>
+      </div>
+    </div>
+
+    <div style="margin-top:1.5rem; padding:1rem; background:var(--surface); border:1px solid var(--border); border-radius:10px;">
+      <div style="font-size:0.82rem; color:var(--text-dim); line-height:1.7;">
+        <strong style="color:var(--text);">Cost-optimization tip:</strong> If budget is a factor, prioritize in this order: Omega-3 first (biggest gap, cheapest as liquid), then magnesium (broad benefits, sleep improvement), then collagen (training longevity). Ashwagandha is truly optional given AG1 already contains some.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Footer ── -->
+  <div class="footer-note">
+    <strong>⚠️ Not medical advice.</strong> Consult your physician before starting any supplement, especially if you take medications. The single highest-impact action: <strong>get a comprehensive blood panel</strong> (25(OH)D, RBC magnesium, lipid panel, testosterone, thyroid, hs-CRP) to turn this from informed guesswork into precision. Supplements never replace sleep, training consistency, whole-food nutrition, and stress management.
+  </div>
+</div>
+
+<script>
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // Card expand/collapse
+  function toggleCard(card) {
+    card.classList.toggle('open');
+  }
+
+  // Sources expand/collapse
+  function toggleSources(btn) {
+    const list = btn.nextElementSibling;
+    list.classList.toggle('open');
+    const arrow = btn.querySelector('span');
+    arrow.textContent = list.classList.contains('open') ? '▲' : '▼';
+  }
+</script>
+</body>
+</html>
